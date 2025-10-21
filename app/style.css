@@ -126,11 +126,11 @@ h1 {
 }
 
 .cell.x {
-    color: #2196f3;
+    color: yellow; /* 叉的顏色改為黃色 */
 }
 
 .cell.o {
-    color: #f44336;
+    color: green; /* 圈的顏色改為綠色 */
 }
 
 .cell.winning {

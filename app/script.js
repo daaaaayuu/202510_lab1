@@ -29,6 +29,29 @@ const playerScoreDisplay = document.getElementById('playerScore');
 const computerScoreDisplay = document.getElementById('computerScore');
 const drawScoreDisplay = document.getElementById('drawScore');
 
+// Cookie 操作函數
+function setCookie(name, value, days = 30) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${value};${expires};path=/`;
+}
+
+function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
+        if (cookieName === name) {
+            return cookieValue;
+        }
+    }
+    return null;
+}
+
+function deleteCookie(name) {
+    setCookie(name, '', -1);
+}
+
 // 初始化遊戲
 function init() {
     cells.forEach(cell => {
@@ -37,6 +60,18 @@ function init() {
     resetBtn.addEventListener('click', resetGame);
     resetScoreBtn.addEventListener('click', resetScore);
     difficultySelect.addEventListener('change', handleDifficultyChange);
+    
+    // 從 Cookie 讀取記錄
+    const savedPlayerScore = getCookie('playerScore');
+    const savedComputerScore = getCookie('computerScore');
+    const savedDrawScore = getCookie('drawScore');
+    
+    if (savedPlayerScore !== null) {
+        playerScore = parseInt(savedPlayerScore);
+        computerScore = parseInt(savedComputerScore);
+        drawScore = parseInt(savedDrawScore);
+    }
+    
     updateScoreDisplay();
 }
 
@@ -54,10 +89,8 @@ function handleCellClick(e) {
     makeMove(cellIndex, 'X');
     
     if (gameActive && currentPlayer === 'O') {
-        const userInput = prompt("輸入延遲時間（毫秒）");
-        // 安全地解析使用者輸入
-        const delay = Math.max(0, Math.min(2000, Number(userInput) || 500));
-        setTimeout(() => computerMove(), delay);
+        // 使用固定的 500 毫秒延遲
+        setTimeout(() => computerMove(), 500);
     }
 }
 
@@ -274,6 +307,12 @@ function resetScore() {
     playerScore = 0;
     computerScore = 0;
     drawScore = 0;
+    
+    // 清除 Cookie
+    deleteCookie('playerScore');
+    deleteCookie('computerScore');
+    deleteCookie('drawScore');
+    
     updateScoreDisplay();
     resetGame();
 }
@@ -283,6 +322,11 @@ function updateScoreDisplay() {
     playerScoreDisplay.textContent = playerScore;
     computerScoreDisplay.textContent = computerScore;
     drawScoreDisplay.textContent = drawScore;
+    
+    // 更新 Cookie
+    setCookie('playerScore', playerScore);
+    setCookie('computerScore', computerScore);
+    setCookie('drawScore', drawScore);
 }
 
 // 處理難度變更
